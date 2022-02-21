@@ -107,6 +107,9 @@ void Pony::DoMovement(int* newX, int* newY) {
         case MovementMode::Builder:
             DoMovement_Build(newX, newY);
             break;
+        case MovementMode::Basher:
+            DoMovement_Build(newX, newY);
+            break;
     }
 
 }
@@ -116,7 +119,7 @@ bool Pony::DoMovement_Basic(int* newX, int* newY) {
     int collisions = 0;
     int firstCollision = 0;
     for (int i = 5; i > 0; i--) {
-        if (level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y - i)) {
+        if (level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y - i, CollisionType::Any)) {
             if (!firstCollision) {
                 firstCollision = i;
             }
@@ -140,7 +143,7 @@ void Pony::DoMovement_Walk(int* newX, int* newY) {
             isClimbing = false;
             *newY = y - 1;
             for (int i = 1; i < 10; i++) {
-                if (level->GetHitmap()->GetCollision(x, y - i)) {
+                if (level->GetHitmap()->GetCollision(x, y - i, CollisionType::Any)) {
                     movingRight = !movingRight;
                     return;
                 }
@@ -157,8 +160,8 @@ void Pony::DoMovement_Build(int* newX, int* newY) {
     int x = *newX, y = *newY;
     int sign = (movingRight ? 1 : -1);
     for (int tx = x + sign; tx != x + sign * 5; tx += sign) {
-        if (!level->GetHitmap()->GetCollision(tx, y - 1)) {
-            level->SetPixel(tx, y - 1, 0x4184abff, true);
+        if (!level->GetHitmap()->GetCollision(tx, y - 1, CollisionType::Any)) {
+            level->SetPixel(tx, y - 1, 0x4184abff, CollisionType::Wall);
         }
     }
     level->Upload();
@@ -172,13 +175,13 @@ void Pony::DoMovement_Build(int* newX, int* newY) {
 int Pony::CheckGroundBelow() {
     int groundY = 0;
     if (isClimber && isClimbing) {
-        if (level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y)) {
+        if (level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y, CollisionType::Any)) {
             return y;
         }
     }
     int i = 0;
     while (true) {
-        if (level->GetHitmap()->GetCollision(x, y + i)) {
+        if (level->GetHitmap()->GetCollision(x, y + i, CollisionType::Any)) {
             groundY = y + i;
             break;
         }
@@ -201,7 +204,7 @@ bool Pony::SetMovementMode(MovementMode mode) {
     if (mode == MovementMode::Blocker) {
         for(int tx = x - 2; tx <= x + 2; tx++)
             for(int ty = y; ty > y - 10; ty--)
-                level->GetHitmap()->SetCollision(tx, ty, true);
+                level->GetHitmap()->SetCollision(tx, ty, CollisionType::Blocker);
     }
     if (mode == MovementMode::Floater) {
         isFloater = true;

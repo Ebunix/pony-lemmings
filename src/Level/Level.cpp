@@ -18,7 +18,7 @@ void Level::PlaceSprite(int x, int y, Uint32* pixels, int w, int h) {
         uint8_t alpha = pixels[i] >> 24;
         int sx = i % w;
         int sy = i / w;
-        hitmap->SetCollision(x + sx, y + sy, alpha > 0x80);
+        hitmap->SetCollision(x + sx, y + sy, alpha > 0x80 ? CollisionType::Wall : CollisionType::None);
     }
 }
 
@@ -59,9 +59,12 @@ void Level::Update(const Game* game, float delta) {
     }
 }
 
-void Level::SetPixel(int x, int y, Uint32 color, bool collision) {
+void Level::SetPixel(int x, int y, Uint32 color, CollisionType type, CollisionType mask) {
+    if (hitmap->GetCollision(x, y, CollisionType::Permanent)) {
+        return;
+    }
     bitmap[y * width + x] = color;
-    hitmap->SetCollision(x, y, collision);
+    hitmap->SetCollision(x, y, type);
 }
 
 
@@ -74,7 +77,7 @@ void Level::BombCircle(int ox, int oy, int radius) {
                 continue;
             }
 
-            SetPixel(ox + x, oy + y, 0, false);
+            SetPixel(ox + x, oy + y, 0, CollisionType::None);
         }
     }
     Upload();
