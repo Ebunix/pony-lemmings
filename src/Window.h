@@ -6,7 +6,7 @@ public:
     Window(int width, int height, bool fullscreen);
     ~Window();
 
-    inline const SDL_Renderer* Renderer() const { return renderer; }
+    inline SDL_Renderer* Renderer() const { return renderer; }
 
     inline const float Width() const { return width; }
     inline const float Height() const { return height; }

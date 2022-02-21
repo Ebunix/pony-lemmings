@@ -1,10 +1,11 @@
 #pragma once
 #include "UIButton.h"
 #include "../Sprites/SpriteRegistry.h"
+#include "../Mechanics/MovementMode.h"
 
 class UIAbilityButton : public UIButton {
 public: 
-    UIAbilityButton(const SpriteAtlas& atlas, const SpriteRegistry& registry, int index);
+    UIAbilityButton(const SpriteAtlas& atlas, const SpriteRegistry& registry, MovementMode* target, int index);
     ~UIAbilityButton();
 
     virtual bool Click(int button) override;
@@ -18,4 +19,5 @@ private:
     Sprite number1;
     Sprite number2;
     Sprite icon;
+    MovementMode* target;
 };

@@ -3,13 +3,14 @@
 
 std::list<UIAbilityButton*> abilityButtons;
 
-UIAbilityButton::UIAbilityButton(const SpriteAtlas& atlas, const SpriteRegistry& registry, int index) 
-    : UIButton(Sprite(atlas, registry.abilityButton), index * 26, 160) {
+UIAbilityButton::UIAbilityButton(const SpriteAtlas& atlas, const SpriteRegistry& registry, MovementMode* target, int index) 
+    : UIButton(Sprite(atlas, registry.abilityButton), index * 26, 160 + INFO_TEXT_GAP) {
         number1 = Sprite(atlas, registry.number8x8);
         number2 = Sprite(atlas, registry.number8x8);
         icon = Sprite(atlas, registry.abilityIcon);
         icon.currentFrame = index + 1;
         abilityButtons.push_back(this);
+        this->target = target;
     }
 
 UIAbilityButton::~UIAbilityButton() {
@@ -22,6 +23,7 @@ bool UIAbilityButton::Click(int button) {
             button->Deselect();
         }
         Select();
+        *target = (MovementMode)(icon.currentFrame);
         return true;
     }
     return false;

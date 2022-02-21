@@ -24,7 +24,7 @@ public:
     SpriteAtlas() {}
     SpriteAtlas(const SDL_Renderer* renderer, int size);
     void Build();
-    const SDL_Texture* GetTexture() const { return texture; }
+    SDL_Texture* GetTexture() const { return texture; }
     SpriteID AddSprite(const std::vector<Uint32*>& frames, int w, int h);
     const SDL_Rect* SpriteFrame(const Sprite& sprite) const;
     const SpriteAtlasEntryPacked GetSpriteInfo(SpriteID id) const;

@@ -12,13 +12,14 @@ void GameScene::MouseMove(int x, int y) {
     }
 }
 
-void GameScene::MouseButton(Uint32 which, Uint8 state) {
+bool GameScene::MouseButton(Game* game, Uint32 which, Uint8 state) {
     static UIElement* lastClickTarget = 0;
     for (auto elem : uiElements) {
         if (elem->MouseOver()) {
             if (elem->MouseButton(which, state)) {
-                break;
+                return true;
             }
         }
     }
+    return false;
 }

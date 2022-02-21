@@ -15,7 +15,7 @@ public:
     virtual void Update(Game* game, float delta) {}
 
     virtual void MouseMove(int x, int y);
-    virtual void MouseButton(Uint32 which, Uint8 state);
+    virtual bool MouseButton(Game* game, Uint32 which, Uint8 state);
 
     void AddUIElement(UIElement* elem) { uiElements.push_back(elem); }
 

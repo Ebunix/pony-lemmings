@@ -71,8 +71,8 @@ int main(int argc, char* argv[]) {
     Window window(displayMode.w, displayMode.h, info.fullscreen);
     window.Open();
 
-    Game game(&window);
-    game.Scale(displayMode.h / (160.0f + 40));
+    float scaleCoef = (160.0f + LOWER_SCREEN_GAP);
+    Game game(&window, displayMode.h / scaleCoef);
     game.LoadAssets();
 
     game.SwitchScene();
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
                 break;
             case SDL_WINDOWEVENT: {
                 if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) { 
-                    game.Scale(event.window.data2 / (160.0f + 40));
+                    game.Scale(event.window.data2 / scaleCoef);
                 }
                 break;
             }

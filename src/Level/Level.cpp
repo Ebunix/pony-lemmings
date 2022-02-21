@@ -2,12 +2,12 @@
 #include "../Game.h"
 #include "../Input.h"
 
-Level::Level(int width, int height, const SDL_Renderer* renderer) {
+Level::Level(int width, int height, SDL_Renderer* renderer) {
     hitmap = new LevelHitmap(width, height);
     bitmap = new Uint32[width * height];
     this->width = width;
     this->height = height;
-    this->texture = SDL_CreateTexture((SDL_Renderer*)renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, width, height);
+    this->texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STREAMING, width, height);
 }
 
 void Level::PlaceSprite(int x, int y, Uint32* pixels, int w, int h) {
@@ -16,12 +16,14 @@ void Level::PlaceSprite(int x, int y, Uint32* pixels, int w, int h) {
     }
     for (int i = 0; i < w * h; i++) {
         uint8_t alpha = pixels[i] >> 24;
-        hitmap->SetCollision(i % width, i / width, alpha > 0x80);
+        int sx = i % w;
+        int sy = i / w;
+        hitmap->SetCollision(x + sx, y + sy, alpha > 0x80);
     }
 }
 
 void Level::AddPony(const Sprite& sprite, int x, int y) {
-    Pony* pony = new Pony(sprite, hitmap, x, y);
+    Pony* pony = new Pony(sprite, this, x, y);
     ponies.push_back(pony);
 }
 
@@ -57,3 +59,23 @@ void Level::Update(const Game* game, float delta) {
     }
 }
 
+void Level::SetPixel(int x, int y, Uint32 color, bool collision) {
+    bitmap[y * width + x] = color;
+    hitmap->SetCollision(x, y, collision);
+}
+
+
+void Level::BombCircle(int ox, int oy, int radius) {
+    for (int x = -radius; x <= radius; x++){
+        for (int y = -radius; y <= radius; y++)
+        {
+            float distance = sqrt((float)x*x + (float)y*y);
+            if (distance > radius) {
+                continue;
+            }
+
+            SetPixel(ox + x, oy + y, 0, false);
+        }
+    }
+    Upload();
+}
