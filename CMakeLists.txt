@@ -6,7 +6,7 @@ set( CMAKE_CXX_STANDARD 11 )
 set( CMAKE_CXX_STANDARD_REQUIRED True )
 
 add_executable( ponies 
-    src/Sprites/gifdec.c
+    src/Submodules/gifdec/gifdec.c
     src/Submodules/SDL_FontCache/SDL_FontCache.c
 
     src/Sprites/SpriteAtlas.cpp
@@ -36,6 +36,7 @@ find_package( SDL2 REQUIRED )
 include_directories( ${SDL2_INCLUDE_DIRS} )
 include_directories( ${SDL2_ttf_INCLUDE_DIRS} )
 include_directories( "src/Submodules/SDL_FontCache" )
+include_directories( "src/Submodules/gifdec" )
 
 target_link_libraries( ponies ${SDL2_LIBRARIES} )
 target_link_libraries( ponies "SDL2_ttf" )

@@ -1,5 +1,5 @@
 #include "AssetLoader.h"
-#include "Sprites/gifdec.h"
+#include <gifdec.h>
 
 SpriteID LoadAnimatedSprite(SpriteAtlas& atlas, const char* file) {
     gd_GIF* gif = gd_open_gif(file);
