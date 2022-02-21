@@ -32,7 +32,6 @@ add_executable( ponies
 )
 
 find_package( SDL2 REQUIRED )
-find_package( Freetype REQUIRED )
 
 include_directories( ${SDL2_INCLUDE_DIRS} )
 include_directories( ${SDL2_ttf_INCLUDE_DIRS} )
