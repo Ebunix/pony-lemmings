@@ -3,6 +3,7 @@
     "files.associations": {
         "type_traits": "cpp",
         "chrono": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "cmath": "cpp"
     }
 }

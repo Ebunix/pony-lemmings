@@ -20,6 +20,10 @@ float Pony::MovementSpeedMultiplier() {
 
     if (movementMode == MovementMode::Builder) 
         return 0.08f;
+    if (movementMode == MovementMode::Digger) 
+        return 0.15f;
+    if (movementMode == MovementMode::Basher) 
+        return 0.5f;
 
     return (grounded ? 1 : 1.2f);
 }
@@ -34,6 +38,7 @@ void Pony::Update(float delta) {
         if (bomberTimer <= 0) {
             Die();
             level->BombCircle(x, y - sprite.height / 2, 12);
+            level->Upload();
             return;
         }
     }
@@ -107,8 +112,11 @@ void Pony::DoMovement(int* newX, int* newY) {
         case MovementMode::Builder:
             DoMovement_Build(newX, newY);
             break;
+        case MovementMode::Digger:
+            DoMovement_Dig(newX, newY);
+            break;
         case MovementMode::Basher:
-            DoMovement_Build(newX, newY);
+            DoMovement_Bash(newX, newY);
             break;
     }
 
@@ -119,7 +127,7 @@ bool Pony::DoMovement_Basic(int* newX, int* newY) {
     int collisions = 0;
     int firstCollision = 0;
     for (int i = 5; i > 0; i--) {
-        if (level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y - i, CollisionType::Any)) {
+        if (CollisionTest(level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y - i), CollisionType::Any)) {
             if (!firstCollision) {
                 firstCollision = i;
             }
@@ -143,7 +151,7 @@ void Pony::DoMovement_Walk(int* newX, int* newY) {
             isClimbing = false;
             *newY = y - 1;
             for (int i = 1; i < 10; i++) {
-                if (level->GetHitmap()->GetCollision(x, y - i, CollisionType::Any)) {
+                if (CollisionTest(level->GetHitmap()->GetCollision(x, y - i), CollisionType::Any)) {
                     movingRight = !movingRight;
                     return;
                 }
@@ -160,7 +168,7 @@ void Pony::DoMovement_Build(int* newX, int* newY) {
     int x = *newX, y = *newY;
     int sign = (movingRight ? 1 : -1);
     for (int tx = x + sign; tx != x + sign * 5; tx += sign) {
-        if (!level->GetHitmap()->GetCollision(tx, y - 1, CollisionType::Any)) {
+        if (!CollisionTest(level->GetHitmap()->GetCollision(tx, y - 1), CollisionType::Any)) {
             level->SetPixel(tx, y - 1, 0x4184abff, CollisionType::Wall);
         }
     }
@@ -172,16 +180,85 @@ void Pony::DoMovement_Build(int* newX, int* newY) {
     *newX = x + (*newX - x) * 2;
 }
 
+void Pony::DoMovement_Dig(int* newX, int* newY) {
+    int x = *newX, y = *newY;
+    
+    bool didCollide = false;
+    CollisionType collision = level->GetHitmap()->GetCollision(x, y);
+    if (CollisionTest(collision, CollisionType::Any)) {
+        didCollide = true;
+        if (CollisionTest(collision, CollisionType::Permanent)) {
+            SetMovementMode(MovementMode::Walker);
+            return;
+        }
+    }
+    for (int tx = -6; tx <= 6; tx++) {
+        for (int ty = 0; ty < 4; ty++) {
+            level->SetPixel(x + tx, y - ty, 0, CollisionType::None);
+        }
+    }
+    level->Upload();
+
+    collision = level->GetHitmap()->GetCollision(x, y + 1);
+    if (!CollisionTest(collision, CollisionType::Any)) {
+        SetMovementMode(MovementMode::Walker);
+    }
+
+    *newY = y + 1;
+}
+
+void Pony::DoMovement_Bash(int* newX, int* newY) {
+    int x = *newX, y = *newY;
+    
+    bool didCollide = false;
+    for (int tx = 0; tx < 5; tx++) {
+        CollisionType collision = level->GetHitmap()->GetCollision(x + tx * (movingRight ? 1 : -1), y);
+        if (CollisionTest(collision, CollisionType::Any)) {
+            didCollide = true;
+            if (CollisionTest(collision, CollisionType::Permanent)) {
+                SetMovementMode(MovementMode::Walker);
+                return;
+            }
+        }
+    }
+    
+    int bashX = (int)(sin((bashAngle + (movingRight ? -90 : 90)) * 0.0174533f) * 5); // DEG2RAD
+    int bashY = (int)(cos((bashAngle + (movingRight ? -90 : 90)) * 0.0174533f) * 5); // DEG2RAD
+    level->BashCircle(x + bashX + (movingRight ? 3 : -3), y + bashY - 6, 3, y);
+    level->Upload();
+
+    bashAngle += 360.0f / 12 * (movingRight ? -1 : 1);
+    if (bashAngle <= -360 || bashAngle >= 360) {
+        level->BashCircle(x + (movingRight ? 3 : -3), y - 6, 3, y);
+
+        bashAngle = 0;
+        *newX += movingRight ? 3 : -3;
+
+        bool didCollide = false;
+        for (int tx = 0; tx < 10; tx++) {
+            if (CollisionTest(level->GetHitmap()->GetCollision(*newX + (movingRight ? 1 : -1) * tx, y - 2), CollisionType::Any)) {
+                didCollide = true;
+            }
+            if (CollisionTest(level->GetHitmap()->GetCollision(*newX + (movingRight ? 1 : -1) * tx, y - 8), CollisionType::Any)) {
+                didCollide = true;
+            }
+        }
+        if (!didCollide) {
+            SetMovementMode(MovementMode::Walker);
+        }
+    }
+}
+
 int Pony::CheckGroundBelow() {
     int groundY = 0;
     if (isClimber && isClimbing) {
-        if (level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y, CollisionType::Any)) {
+        if (CollisionTest(level->GetHitmap()->GetCollision(x + (movingRight ? 1 : -1), y), CollisionType::Any)) {
             return y;
         }
     }
     int i = 0;
     while (true) {
-        if (level->GetHitmap()->GetCollision(x, y + i, CollisionType::Any)) {
+        if (CollisionTest(level->GetHitmap()->GetCollision(x, y + i), CollisionType::Any)) {
             groundY = y + i;
             break;
         }

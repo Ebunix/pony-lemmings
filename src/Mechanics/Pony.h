@@ -36,6 +36,7 @@ private:
     bool isFallingDeadly = false;
 
     int stairsLeft = 0;
+    float bashAngle = 0;
 
     Sprite sprite;
     MovementMode movementMode = MovementMode::Walker;
@@ -48,4 +49,6 @@ private:
     bool DoMovement_Basic(int* newX, int* newY);
     void DoMovement_Walk(int* newX, int* newY);
     void DoMovement_Build(int* newX, int* newY);
+    void DoMovement_Dig(int* newX, int* newY);
+    void DoMovement_Bash(int* newX, int* newY);
 };

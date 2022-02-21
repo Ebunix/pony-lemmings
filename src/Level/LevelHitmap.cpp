@@ -12,10 +12,10 @@ LevelHitmap::~LevelHitmap() {
     delete[] collisions;
 }
 
-bool LevelHitmap::GetCollision(int x, int y, CollisionType type) const {
-    if (x < 0 || x >= width || y < 0 || y >= height) return false;
+CollisionType LevelHitmap::GetCollision(int x, int y) const {
+    if (x < 0 || x >= width || y < 0 || y >= height) return CollisionType::None;
     int index = x + y * width;
-    return (collisions[index] & (uint8_t)type) != 0;
+    return (CollisionType)collisions[index];
 }
 
 void LevelHitmap::SetCollision(int x, int y, CollisionType type) {

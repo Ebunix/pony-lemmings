@@ -60,7 +60,7 @@ void Level::Update(const Game* game, float delta) {
 }
 
 void Level::SetPixel(int x, int y, Uint32 color, CollisionType type, CollisionType mask) {
-    if (hitmap->GetCollision(x, y, CollisionType::Permanent)) {
+    if (CollisionTest(hitmap->GetCollision(x, y), CollisionType::Permanent)) {
         return;
     }
     bitmap[y * width + x] = color;
@@ -80,5 +80,18 @@ void Level::BombCircle(int ox, int oy, int radius) {
             SetPixel(ox + x, oy + y, 0, CollisionType::None);
         }
     }
-    Upload();
+}
+
+void Level::BashCircle(int ox, int oy, int radius, int ponyY) {
+    for (int x = -radius; x <= radius; x++){
+        for (int y = -radius; y <= radius; y++)
+        {
+            float distance = sqrt((float)x*x + (float)y*y);
+            if ((y + oy >= ponyY) || (y + oy <= ponyY - 12) || distance > radius) {
+                continue;
+            }
+
+            SetPixel(ox + x, oy + y, 0, CollisionType::None);
+        }
+    }
 }

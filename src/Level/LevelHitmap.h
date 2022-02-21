@@ -10,12 +10,14 @@ enum class CollisionType {
     Any = Wall | Blocker | Permanent
 };
 
+inline bool CollisionTest(CollisionType type, CollisionType mask) { return ((uint8_t)type & (uint8_t)mask) != 0; }
+
 class LevelHitmap {
 public:
     LevelHitmap(int width, int height);
     ~LevelHitmap();
 
-    bool GetCollision(int x, int y, CollisionType type) const;
+    CollisionType GetCollision(int x, int y) const;
     void SetCollision(int x, int y, CollisionType type);
 private:
     uint8_t* collisions;

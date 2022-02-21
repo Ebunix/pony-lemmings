@@ -21,6 +21,7 @@ public:
     inline SDL_Point AdjustMousePos(const SDL_Point& mouse) const { return { mouse.x - x, mouse.y - y}; }
 
     void BombCircle(int x, int y, int radius);
+    void BashCircle(int x, int y, int radius, int ponyY);
     void SetPixel(int x, int y, Uint32 color, CollisionType type, CollisionType mask = CollisionType::Any);
 
     std::vector<Pony*>& Ponies() { return ponies; }
